@@ -52,7 +52,7 @@
 </audio>
 
 <script>
-window.onload = function(){
+window.onload = function() {
 
   const g1 = document.getElementById('ghost1');
   const g2 = document.getElementById('ghost2');
@@ -61,50 +61,60 @@ window.onload = function(){
   const black = document.getElementById('black');
   const bloodSplat = document.getElementById('bloodSplat');
   const bloodFill = document.getElementById('bloodFill');
+  const tap = document.getElementById('tapToStart');
 
-  // STEP 1 → slow ghost appears
-  setTimeout(()=>{
-    g1.style.opacity = 1;
-    g1.style.transform = "translate(-50%,-50%) scale(0.95)";
-  }, 300);
-
-  // STEP 2 → fade back a bit
-  setTimeout(()=>{
-    g1.style.opacity = 0.4;
-    g1.style.transform = "translate(-50%,-50%) scale(0.70)";
-  }, 5600);
-
-  // STEP 3 → play last 5 seconds of audio
-  audio.addEventListener("loadedmetadata",()=>{
-    if(audio.duration > 5) audio.currentTime = audio.duration - 5;
+  // WAIT for user tap (required for audio)
+  tap.addEventListener("click", () => {
+    tap.remove(); // remove tap overlay
+    startSequence(); 
   });
 
-  setTimeout(()=>{ audio.play().catch(()=>{}); }, 6200);
+  function startSequence() {
 
-  // STEP 4 → jumpscare ghost
-  setTimeout(()=>{
-    flash.style.opacity = 1;
-    setTimeout(()=> flash.style.opacity = 0, 120);
+    // STEP 1 → show ghost1
+    setTimeout(()=>{
+      g1.style.opacity = 1;
+      g1.style.transform = "translate(-50%,-50%) scale(0.95)";
+    }, 300);
 
-    g2.style.opacity = 1;
-    g2.style.transform = "translate(-50%,-50%) scale(1.4)";
+    // STEP 2 → fade ghost1 early
+    setTimeout(()=>{
+      g1.style.opacity = 0.4;
+      g1.style.transform = "translate(-50%,-50%) scale(0.70)";
+    }, 2800);
+
+    // STEP 3 → play last 5 sec audio
+    audio.addEventListener("loadedmetadata",()=>{
+      if(audio.duration > 5) audio.currentTime = audio.duration - 5;
+    });
+
+    audio.play().catch(()=>{}); // NOW ALLOWED because user tapped
+
+    // STEP 4 → jumpscare
+    setTimeout(()=>{
+      flash.style.opacity = 1;
+      setTimeout(()=> flash.style.opacity = 0, 120);
+
+      g2.style.opacity = 1;
+      g2.style.transform = "translate(-50%,-50%) scale(1.4)";
+
+      setTimeout(()=>{
+        g2.style.transform = "translate(-50%,-50%) scale(6)";
+        black.style.opacity = 1;
+      }, 200);
+    }, 3400);
+
+    // STEP 5 → blood
+    setTimeout(()=>{
+      bloodSplat.style.opacity = 1;
+      bloodSplat.style.transform = "translate(-50%,-50%) scale(1)";
+    }, 4000);
 
     setTimeout(()=>{
-      g2.style.transform = "translate(-50%,-50%) scale(6)";
-      black.style.opacity = 1;
-    }, 200);
-  }, 6300);
+      bloodFill.style.height = "100%";
+    }, 4300);
 
-  // STEP 5 → blood effects
-  setTimeout(()=>{
-    bloodSplat.style.opacity = 1;
-    bloodSplat.style.transform = "translate(-50%,-50%) scale(1)";
-  }, 6900);
-
-  setTimeout(()=>{
-    bloodFill.style.height = "100%";
-  }, 7200);
-
+  }
 };
 </script>
 
