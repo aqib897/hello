@@ -63,34 +63,35 @@ window.onload = function() {
   const bloodFill = document.getElementById('bloodFill');
   const tap = document.getElementById('tapToStart');
 
-  // WAIT for user tap (required for audio)
+  // Wait for user tap (required for audio)
   tap.addEventListener("click", () => {
-    tap.remove(); // remove tap overlay
-    startSequence(); 
+    tap.remove();
+    startSequence();
   });
 
   function startSequence() {
 
-    // STEP 1 → show ghost1
+    // Load last 3 seconds of audio
+    audio.addEventListener("loadedmetadata", () => {
+      if(audio.duration > 3){
+        audio.currentTime = audio.duration - 3;
+      }
+    });
+
+    // STEP 1 → ghost1 appears AND audio starts here
     setTimeout(()=>{
       g1.style.opacity = 1;
       g1.style.transform = "translate(-50%,-50%) scale(0.95)";
-    }, 300);
+      audio.play().catch(()=>{});
+    }, 300); // audio sync here
 
-    // STEP 2 → fade ghost1 early
+    // STEP 2 → fade ghost1 faster
     setTimeout(()=>{
       g1.style.opacity = 0.4;
       g1.style.transform = "translate(-50%,-50%) scale(0.70)";
-    }, 2800);
+    }, 2300);
 
-    // STEP 3 → play last 5 sec audio
-    audio.addEventListener("loadedmetadata",()=>{
-      if(audio.duration > 5) audio.currentTime = audio.duration - 5;
-    });
-
-    audio.play().catch(()=>{}); // NOW ALLOWED because user tapped
-
-    // STEP 4 → jumpscare
+    // STEP 3 → jumpscare ghost2
     setTimeout(()=>{
       flash.style.opacity = 1;
       setTimeout(()=> flash.style.opacity = 0, 120);
@@ -102,21 +103,21 @@ window.onload = function() {
         g2.style.transform = "translate(-50%,-50%) scale(6)";
         black.style.opacity = 1;
       }, 200);
-    }, 3400);
+    }, 2600);
 
-    // STEP 5 → blood
+    // STEP 4 → blood effect
     setTimeout(()=>{
       bloodSplat.style.opacity = 1;
       bloodSplat.style.transform = "translate(-50%,-50%) scale(1)";
-    }, 4000);
+    }, 3200);
 
     setTimeout(()=>{
       bloodFill.style.height = "100%";
-    }, 4300);
-
+    }, 3500);
   }
 };
 </script>
+
 
 </body>
 </html>
