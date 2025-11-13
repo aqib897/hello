@@ -3,140 +3,300 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Jumpscare</title>
+<title>DEATH MODE EXTREME</title>
 <style>
-  body{margin:0;background:#020104;overflow:hidden}
-
-  #ghost1, #ghost2{
-    position:fixed;
-    left:50%; top:50%;
+  :root{--bg:#020104}
+  html,body{height:100%;margin:0;background:var(--bg);overflow:hidden;font-family:system-ui,Arial}
+  /* Ghost images */
+  #ghost1,#ghost2,#ghost3{
+    position:fixed;left:50%;top:50%;
     transform:translate(-50%,-50%) scale(0.28);
-    width:60vw; max-width:560px;
-    opacity:0;
-    transition:transform 1s linear, opacity .6s linear;
+    width:68vw;max-width:720px;opacity:0;transition:transform 350ms ease,opacity 200ms linear;
+    pointer-events:none;mix-blend-mode:normal;
   }
-  #ghost2{z-index:30;}
-
-  #flash, #black{
-    position:fixed; inset:0;
-    opacity:0; pointer-events:none;
-  }
-  #flash{background:#fff; z-index:50;}
-  #black{background:#000; z-index:60;}
-
-  .blood-splat{
-    position:fixed; left:50%; top:40%;
-    transform:translate(-50%,-50%) scale(0.2);
-    width:120vmin; height:120vmin;
-    border-radius:50%;
-    background:radial-gradient(circle,#ff5050,#600000,transparent);
-    opacity:0; z-index:70;
-    transition:transform .4s ease-out, opacity .3s linear;
-  }
-
-  .blood-fill{
-    position:fixed; left:0; right:0; bottom:0;
-    height:0;
-    background:linear-gradient(180deg,#a00000,#400000);
-    z-index:75;
-    transition:height 2.5s ease-in;
-  }
-
-  /* TAP TO START */
-  #tapToStart{
-    position:fixed; inset:0;
-    background:black; color:white;
-    font-size:26px; text-align:center;
-    display:flex; align-items:center; justify-content:center;
-    z-index:9999;
-  }
+  /* overlays */
+  #flash,#black{position:fixed;inset:0;opacity:0;pointer-events:none}
+  #flash{background:#fff;z-index:800}
+  #black{background:#000;z-index:1200}
+  /* crack image */
+  #crackOverlay{position:fixed;inset:0;z-index:1100;pointer-events:none;opacity:0;transition:opacity 140ms linear;mix-blend-mode:screen}
+  /* blood */
+  .blood-splat{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%) scale(0.2);width:120vmin;height:120vmin;border-radius:50%;background:radial-gradient(circle,#ff5050,#600000,transparent);opacity:0;z-index:1000;transition:transform .35s ease-out,opacity .24s linear}
+  .blood-fill{position:fixed;left:0;right:0;bottom:0;height:0;background:linear-gradient(180deg,#b00000,#350000);z-index:1005;transition:height 1.8s ease-in}
+  /* tap overlay (required for audio) */
+  #tapToStart{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#000;color:#fff;z-index:2000;font-size:20px}
+  /* fake incoming call UI */
+  #callCard{position:fixed;left:50%;transform:translateX(-50%);bottom:12%;width:86%;max-width:420px;padding:14px 16px;border-radius:14px;background:linear-gradient(180deg,#0b0b0b,#111);box-shadow:0 20px 50px rgba(0,0,0,0.6);z-index:2100;display:none;color:#fff;font-weight:700}
+  #callCard .name{font-size:18px;margin-bottom:6px}
+  .callBtns{display:flex;gap:12px;justify-content:center}
+  .btn{padding:10px 14px;border-radius:10px;color:#111;font-weight:900;border:0;cursor:pointer}
+  .btnAccept{background:#4ff07a}
+  .btnDecline{background:#ff6b6b}
+  /* fake popup */
+  #fakePopup{position:fixed;right:12px;top:12px;background:#222;padding:10px 14px;border-radius:8px;color:#fff;z-index:2200;display:none;box-shadow:0 8px 28px rgba(0,0,0,0.6)}
+  /* glitch overlays */
+  .glitch{position:fixed;inset:0;z-index:900;pointer-events:none;mix-blend-mode:screen;opacity:0}
+  /* small utilities */
+  .hidden{display:none!important}
 </style>
 </head>
 <body>
 
-<div id="tapToStart">Tap to begin...</div>
+<!-- TAP to unlock audio/vibrate -->
+<div id="tapToStart">Tap to unlock full experience (required)</div>
 
-<!-- FIRST GHOST -->
-<img id="ghost1" src="ghostimg1.png">
+<!-- Ghost layers -->
+<img id="ghost1" src="ghostimg1.png" alt="">
+<img id="ghost2" src="ghostimg2.png" alt="">
+<img id="ghost3" src="ghostimg2.png" alt=""> <!-- reused as extra jump ghost -->
 
-<!-- JUMPSCARE GHOST -->
-<img id="ghost2" src="ghostimg2.png">
-
+<!-- overlays -->
 <div id="flash"></div>
+<div id="crackOverlay"><img src="crack.png" style="width:100%;height:100%;object-fit:cover"></div>
 <div id="black"></div>
 
+<!-- blood -->
 <div class="blood-splat" id="bloodSplat"></div>
 <div class="blood-fill" id="bloodFill"></div>
 
-<audio id="audio" preload="auto">
-  <source src="ghost.mp3" type="audio/mpeg">
-</audio>
+<!-- fake incoming call -->
+<div id="callCard">
+  <div class="name">Unknown Caller</div>
+  <div style="opacity:.9;font-size:13px;margin-bottom:8px">Tap Accept to view the surprise</div>
+  <div class="callBtns">
+    <button class="btn btnAccept" id="acceptBtn">ACCEPT</button>
+    <button class="btn btnDecline" id="declineBtn">DECLINE</button>
+  </div>
+</div>
 
+<!-- fake popup -->
+<div id="fakePopup">System error: <span style="color:#f99;font-weight:900">Unknown process started</span></div>
+
+<!-- audio elements (all share same source but separate instances) -->
+<audio id="audioMain" preload="auto"><source src="ghost.mp3" type="audio/mpeg"></audio>
+<audio id="audioWhisper" preload="auto"><source src="ghost.mp3" type="audio/mpeg"></audio>
+<audio id="audioScream" preload="auto"><source src="ghost.mp3" type="audio/mpeg"></audio>
 
 <script>
-window.onload = function(){
+/* DEATH MODE EXTREME — Full integrated sequence
+   NOTE: browsers require a user gesture to play audible audio/vibrate.
+   Tap anywhere to unlock, then Accept the fake call to start the full sequence.
+*/
+
+(function(){
+  const tap = document.getElementById('tapToStart');
+  const callCard = document.getElementById('callCard');
+  const acceptBtn = document.getElementById('acceptBtn');
+  const declineBtn = document.getElementById('declineBtn');
+  const popup = document.getElementById('fakePopup');
 
   const g1 = document.getElementById('ghost1');
   const g2 = document.getElementById('ghost2');
-  const audio = document.getElementById('audio');
+  const g3 = document.getElementById('ghost3');
+
   const flash = document.getElementById('flash');
   const black = document.getElementById('black');
+  const crack = document.getElementById('crackOverlay');
   const bloodSplat = document.getElementById('bloodSplat');
   const bloodFill = document.getElementById('bloodFill');
-  const tap = document.getElementById('tapToStart');
 
-  tap.addEventListener("click", () => {
-    tap.remove();
-    startSequence();
-  });
+  const audioMain = document.getElementById('audioMain');
+  const audioWhisper = document.getElementById('audioWhisper');
+  const audioScream = document.getElementById('audioScream');
 
-  function startSequence(){
-    // Load last 3 seconds of sound
-    audio.addEventListener("loadedmetadata",()=>{
-      if(audio.duration > 3){
-        audio.currentTime = audio.duration - 3;
+  // small helpers
+  function vibrate(pattern){ if(navigator.vibrate) navigator.vibrate(pattern); }
+  function flashOnce(ms=80){ flash.style.opacity=1; setTimeout(()=>flash.style.opacity=0, ms); }
+  function redFlicker(times=3){
+    let t = 0;
+    const seq=[120,220,320,420];
+    for(let i=0;i<times;i++){
+      setTimeout(()=> document.body.style.background="#400", seq[i]||120);
+      setTimeout(()=> document.body.style.background="", seq[i]+60 || 180);
+    }
+  }
+  function screenShake(intensity=18,dur=480){
+    const start = performance.now();
+    function loop(){
+      const now = performance.now();
+      if(now - start < dur){
+        const dx = (Math.random()*intensity) - intensity/2;
+        const dy = (Math.random()*intensity) - intensity/2;
+        document.body.style.transform = `translate(${dx}px,${dy}px)`;
+        requestAnimationFrame(loop);
+      } else {
+        document.body.style.transform = '';
       }
-    });
-
-    // STEP 1 → ghost1 appears + SOUND START
-    setTimeout(()=>{
-      g1.style.opacity = 1;
-      g1.style.transform = "translate(-50%,-50%) scale(0.95)";
-      audio.play().catch(()=>{});
-    }, 300);
-
-    // STEP 2 → ghost1 fade/zoom
-    setTimeout(()=>{
-      g1.style.opacity = 0.4;
-      g1.style.transform = "translate(-50%,-50%) scale(0.70)";
-    }, 1000);
-
-    // STEP 3 → JUMPSCARE
-    setTimeout(()=>{
-      flash.style.opacity = 1;
-      setTimeout(()=> flash.style.opacity = 0, 120);
-
-      g2.style.opacity = 1;
-      g2.style.transform = "translate(-50%,-50%) scale(1.4)";
-
-      setTimeout(()=>{
-        g2.style.transform = "translate(-50%,-50%) scale(6)";
-        black.style.opacity = 1;
-      }, 200);
-    }, 2600);
-
-    // STEP 4 → BLOOD EFFECT
-    setTimeout(()=>{
-      bloodSplat.style.opacity = 1;
-      bloodSplat.style.transform = "translate(-50%,-50%) scale(1)";
-    }, 3200);
-
-    setTimeout(()=>{
-      bloodFill.style.height = "100%";
-    }, 3500);
+    }
+    loop();
   }
 
-};
+  // robust audio prewarm (silent)
+  function warm(a){ try{ a.volume=0.02; a.play().then(()=>{ a.pause(); a.currentTime=0; a.volume=1; }).catch(()=>{}); }catch(e){} }
+  [audioMain,audioWhisper,audioScream].forEach(warm);
+
+  // When tap unlocks, show fake incoming call
+  tap.addEventListener('click', function onTap(){
+    tap.removeEventListener('click', onTap);
+    tap.remove(); // remove overlay
+    // show call UI after tiny pause
+    setTimeout(()=>{ callCard.style.display='block'; popup.style.display='block'; }, 220);
+    // auto-hide popup after some seconds
+    setTimeout(()=>{ popup.style.display='none'; }, 4000);
+    // schedule an automatic escalation (in case user ignores)
+    scheduleAutoEscalation();
+  });
+
+  // schedule escalation if user ignores the fake call
+  let escalationTimer = null;
+  function scheduleAutoEscalation(){
+    clearTimeout(escalationTimer);
+    escalationTimer = setTimeout(()=> {
+      callCard.style.display='none';
+      // start sequence anyway (force)
+      startFullSequence();
+    }, 8000); // 8s then force
+  }
+
+  declineBtn.addEventListener('click', ()=>{
+    callCard.style.display='none';
+    // if declining, wait a beat and then trigger creeping effects
+    setTimeout(()=> startCreepPhase(), 400);
+  });
+
+  acceptBtn.addEventListener('click', ()=>{
+    callCard.style.display='none';
+    clearTimeout(escalationTimer);
+    // start the death-mode sequence now
+    startFullSequence();
+  });
+
+  // light creep-phase: whispers, crawling ghost
+  function startCreepPhase(){
+    // whisper audio: use a quiet portion earlier in file
+    audioWhisper.volume = 0.18;
+    audioWhisper.play().catch(()=>{});
+    // crawling ghost from bottom (ghost1)
+    g1.style.transition = 'transform 700ms ease, opacity 600ms linear';
+    g1.style.transform = 'translate(-50%,70%) scale(0.6)';
+    g1.style.opacity = 1;
+    // slowly creep up
+    setTimeout(()=>{ g1.style.transform = 'translate(-50%,-10%) scale(0.9)'; }, 700);
+    // small random flickers/popup
+    setTimeout(()=>{ popup.style.display='block'; popup.style.opacity=1; setTimeout(()=>popup.style.opacity=0,900); }, 1000);
+    // if not accepted within some seconds, escalate
+    setTimeout(()=> startFullSequence(), 3000);
+  }
+
+  // MAIN: full death-mode sequence (super intense)
+  function startFullSequence(){
+    // stop whisper (if playing)
+    try{ audioWhisper.pause(); }catch(e){}
+    // prepare audio segments:
+    // audioMain -> play last 3s for instant shock, audioScream -> same source for layered loudness
+    [audioMain,audioScream].forEach(a=>{ a.volume=1.0; try{ a.load(); }catch(e){} });
+
+    // try to seek last 3 seconds for main layers
+    [audioMain,audioScream].forEach(a=>{
+      a.addEventListener('loadedmetadata', ()=>{
+        try{ if(a.duration > 3) a.currentTime = Math.max(0, a.duration - 3); }catch(e){} 
+      }, {once:true});
+    });
+
+    // immediate micro heartbeat rumble
+    vibrate([100,60,140]);
+    screenShake(20,400);
+    redFlicker(2);
+
+    // PHASE A - FIRST VIOLENT FLASH + G1 BURST
+    setTimeout(()=>{
+      flashOnce(60);
+      // super-zoom g1
+      g1.style.transition = 'transform 180ms cubic-bezier(.2,1,.2,1), opacity 180ms linear';
+      g1.style.transform = 'translate(-50%,-50%) scale(3.6)';
+      g1.style.opacity = 1;
+      // start layered sound from last 3s
+      audioMain.play().catch(()=>{});
+      vibrate([220,100]);
+      screenShake(30,500);
+    }, 260);
+
+    // PHASE B - GLITCH FLICKER + tiny shadow ghost flash
+    setTimeout(()=>{
+      // tiny flicker
+      g1.style.opacity = 0.35;
+      flashOnce(40);
+      // shadow quick ghost (g3 flicker)
+      g3.style.transition = 'opacity 80ms linear, transform 80ms linear';
+      g3.style.opacity = 0.8;
+      g3.style.transform = 'translate(-50%,-50%) scale(1.6)';
+      setTimeout(()=>{ g3.style.opacity = 0 }, 120);
+    }, 520);
+
+    // PHASE C - UNEXPECTED MASSIVE JUMP (g2)
+    setTimeout(()=>{
+      // strobe + heavy screen shake
+      flashOnce(24); setTimeout(()=>flashOnce(18),60);
+      redFlicker(3);
+      screenShake(60,700);
+      vibrate([300,100,260,120,320]);
+
+      // reveal g2 and lunge
+      g2.style.transition = 'transform 220ms cubic-bezier(.2,1,.2,1), opacity 120ms linear';
+      g2.style.opacity = 1;
+      g2.style.transform = 'translate(-50%,-50%) scale(2.6)';
+
+      // layered scream (increase volume)
+      audioScream.volume = 1.0;
+      // set scream to last 2.5s
+      audioScream.addEventListener('loadedmetadata', ()=>{
+        try{ if(audioScream.duration > 2.5) audioScream.currentTime = Math.max(0, audioScream.duration - 2.5); }catch(e){}
+      }, {once:true});
+      audioScream.play().catch(()=>{});
+
+      // crack overlay + impact
+      setTimeout(()=>{
+        crack.style.opacity = 1;
+        flash.style.opacity = 1;
+        setTimeout(()=> flash.style.opacity = 0, 140);
+        // lunge massive
+        setTimeout(()=>{ g2.style.transform = 'translate(-50%,-50%) scale(9.0)'; black.style.opacity = 1; }, 160);
+      }, 160);
+
+    }, 820);
+
+    // PHASE D - BLOOD EXPLOSION
+    setTimeout(()=>{
+      bloodSplat.style.opacity = 1;
+      bloodSplat.style.transform = 'translate(-50%,-50%) scale(1.4)';
+      vibrate(450);
+      redFlicker(2);
+      screenShake(35,700);
+    }, 1200);
+
+    // PHASE E - BLOOD FLOOD + OS FAKE POPUP
+    setTimeout(()=>{
+      bloodFill.style.height = '100%';
+      // show fake popup 'system crash'
+      popup.style.display='block';
+      popup.style.opacity=1;
+      popup.textContent = 'System error: Critical process terminated';
+      setTimeout(()=>{ popup.style.opacity=0 }, 1800);
+    }, 1600);
+
+    // PHASE F - final blackout hold then fade out some elements
+    setTimeout(()=>{
+      black.style.opacity = 1;
+      // keep everything for dramatic hold
+    }, 2600);
+
+    // optional clean-up: reset a few things after 7s so user can recover
+    setTimeout(()=>{
+      // do not fully remove crash for shock effect, but allow page to be reloaded
+    }, 10000);
+  }
+
+})();
 </script>
 
 </body>
