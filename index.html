@@ -6,39 +6,60 @@
 <title>Jumpscare</title>
 <style>
   body{margin:0;background:#020104;overflow:hidden}
+
   #ghost1, #ghost2{
-    position:fixed;left:50%;top:50%;
+    position:fixed;
+    left:50%; top:50%;
     transform:translate(-50%,-50%) scale(0.28);
-    width:60vw;max-width:560px;
-    opacity:0;transition:transform 1s linear,opacity .6s linear;
+    width:60vw; max-width:560px;
+    opacity:0;
+    transition:transform 1s linear, opacity .6s linear;
   }
-  #ghost2{z-index:30}
-  #flash,#black{
-    position:fixed;inset:0;opacity:0;pointer-events:none;
+  #ghost2{z-index:30;}
+
+  #flash, #black{
+    position:fixed; inset:0;
+    opacity:0; pointer-events:none;
   }
-  #flash{background:#fff;z-index:50}
-  #black{background:#000;z-index:60}
+  #flash{background:#fff; z-index:50;}
+  #black{background:#000; z-index:60;}
+
   .blood-splat{
-    position:fixed;left:50%;top:40%;
+    position:fixed; left:50%; top:40%;
     transform:translate(-50%,-50%) scale(0.2);
-    width:120vmin;height:120vmin;border-radius:50%;
+    width:120vmin; height:120vmin;
+    border-radius:50%;
     background:radial-gradient(circle,#ff5050,#600000,transparent);
-    opacity:0;z-index:70;
-    transition:transform .4s ease-out,opacity .3s linear;
+    opacity:0; z-index:70;
+    transition:transform .4s ease-out, opacity .3s linear;
   }
+
   .blood-fill{
-    position:fixed;left:0;right:0;bottom:0;height:0;
+    position:fixed; left:0; right:0; bottom:0;
+    height:0;
     background:linear-gradient(180deg,#a00000,#400000);
-    z-index:75;transition:height 2.5s ease-in;
+    z-index:75;
+    transition:height 2.5s ease-in;
+  }
+
+  /* TAP TO START */
+  #tapToStart{
+    position:fixed; inset:0;
+    background:black; color:white;
+    font-size:26px; text-align:center;
+    display:flex; align-items:center; justify-content:center;
+    z-index:9999;
   }
 </style>
 </head>
 <body>
 
-<!-- FIRST (slow) ghost -->
+<div id="tapToStart">Tap to begin...</div>
+
+<!-- FIRST GHOST -->
 <img id="ghost1" src="ghostimg1.png">
 
-<!-- SECOND (jump) ghost -->
+<!-- JUMPSCARE GHOST -->
 <img id="ghost2" src="ghostimg2.png">
 
 <div id="flash"></div>
@@ -51,8 +72,9 @@
   <source src="ghost.mp3" type="audio/mpeg">
 </audio>
 
+
 <script>
-window.onload = function() {
+window.onload = function(){
 
   const g1 = document.getElementById('ghost1');
   const g2 = document.getElementById('ghost2');
@@ -63,35 +85,33 @@ window.onload = function() {
   const bloodFill = document.getElementById('bloodFill');
   const tap = document.getElementById('tapToStart');
 
-  // Wait for user tap (required for audio)
   tap.addEventListener("click", () => {
     tap.remove();
     startSequence();
   });
 
-  function startSequence() {
-
-    // Load last 3 seconds of audio
-    audio.addEventListener("loadedmetadata", () => {
+  function startSequence(){
+    // Load last 3 seconds of sound
+    audio.addEventListener("loadedmetadata",()=>{
       if(audio.duration > 3){
         audio.currentTime = audio.duration - 3;
       }
     });
 
-    // STEP 1 → ghost1 appears AND audio starts here
+    // STEP 1 → ghost1 appears + SOUND START
     setTimeout(()=>{
       g1.style.opacity = 1;
       g1.style.transform = "translate(-50%,-50%) scale(0.95)";
       audio.play().catch(()=>{});
-    }, 300); // audio sync here
+    }, 300);
 
-    // STEP 2 → fade ghost1 faster
+    // STEP 2 → ghost1 fade/zoom
     setTimeout(()=>{
       g1.style.opacity = 0.4;
       g1.style.transform = "translate(-50%,-50%) scale(0.70)";
     }, 2300);
 
-    // STEP 3 → jumpscare ghost2
+    // STEP 3 → JUMPSCARE
     setTimeout(()=>{
       flash.style.opacity = 1;
       setTimeout(()=> flash.style.opacity = 0, 120);
@@ -105,7 +125,7 @@ window.onload = function() {
       }, 200);
     }, 2600);
 
-    // STEP 4 → blood effect
+    // STEP 4 → BLOOD EFFECT
     setTimeout(()=>{
       bloodSplat.style.opacity = 1;
       bloodSplat.style.transform = "translate(-50%,-50%) scale(1)";
@@ -115,9 +135,9 @@ window.onload = function() {
       bloodFill.style.height = "100%";
     }, 3500);
   }
+
 };
 </script>
-
 
 </body>
 </html>
