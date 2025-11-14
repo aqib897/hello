@@ -3,111 +3,122 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>DEATH MODE EXTREME (Balanced)</title>
+<title>Fixed Death Mode Balanced</title>
+
 <style>
-  :root{--bg:#020104}
   html,body{
-    height:100%;margin:0;background:var(--bg);
-    overflow:hidden;font-family:Arial,system-ui;
+    margin:0;padding:0;overflow:hidden;
+    background:#000;font-family:Arial;
   }
 
-  #ghost1,#ghost2,#ghost3{
-    position:fixed;left:50%;top:50%;
-    transform:translate(-50%,-50%) scale(0.3);
-    width:68vw;max-width:720px;opacity:0;
-    transition:transform 350ms ease,opacity 200ms linear;
+  /* GHOST IMAGES – FIXED VISIBILITY */
+  #ghost1, #ghost2, #ghost3{
+    position:fixed;
+    left:50%; top:50%;
+    transform:translate(-50%,-50%) scale(0.1);
+    width:70vw; max-width:600px;
+    opacity:0;
     pointer-events:none;
+    transition:transform 0.35s ease, opacity 0.25s linear;
+    z-index:500;
   }
 
-  #flash,#black{
-    position:fixed;inset:0;opacity:0;pointer-events:none
+  /* FLASH / BLACKOUT */
+  #flash, #black{
+    position:fixed; inset:0;
+    opacity:0; pointer-events:none;
   }
+  #flash{background:#fff;z-index:900;}
+  #black{background:#000;z-index:1500;}
 
-  #flash{background:#fff;z-index:800}
-  #black{background:#000;z-index:1200}
-
+  /* CRACK OVERLAY – FIXED */
   #crackOverlay{
-    position:fixed;inset:0;opacity:0;
-    z-index:1100;pointer-events:none;
-    transition:opacity 140ms linear;
+    position:fixed; inset:0;
+    opacity:0;
+    z-index:1400;
+    pointer-events:none;
+    transition:opacity 0.18s linear;
+  }
+  #crackOverlay img{
+    width:100%; height:100%; object-fit:cover;
   }
 
+  /* BLOOD */
   .blood-splat{
-    position:fixed;left:50%;top:40%;
-    transform:translate(-50%,-50%) scale(0.2);
-    width:120vmin;height:120vmin;
-    background:radial-gradient(circle,#ff5050,#600000,transparent);
-    border-radius:50%;opacity:0;z-index:1000;
-    transition:transform .35s ease-out,opacity .24s linear;
+    position:fixed;left:50%;top:50%;
+    width:130vmin;height:130vmin;
+    transform:translate(-50%,-50%) scale(0.1);
+    background:radial-gradient(circle,#ff3030,#4a0000,transparent);
+    opacity:0;z-index:1200;
+    border-radius:50%;
+    transition:transform 0.4s ease-out, opacity 0.25s linear;
   }
 
   .blood-fill{
-    position:fixed;left:0;right:0;bottom:0;height:0;
-    background:linear-gradient(180deg,#b00000,#350000);
-    z-index:1005;transition:height 1.8s ease-in;
+    position:fixed;left:0;right:0;bottom:0;
+    height:0;background:#700000;z-index:1201;
+    transition:height 2s ease-in;
   }
 
+  /* TAP SCREEN */
   #tapToStart{
-    position:fixed;inset:0;background:#000;color:#fff;
+    position:fixed; inset:0;
+    background:#000;color:#fff;
     display:flex;align-items:center;justify-content:center;
-    font-size:20px;z-index:2000
+    font-size:22px;z-index:2000;
   }
 
+  /* Fake call box */
   #callCard{
-    position:fixed;left:50%;bottom:12%;
+    position:fixed;left:50%;bottom:10%;
     transform:translateX(-50%);
-    width:86%;max-width:420px;
-    padding:14px 16px;border-radius:14px;
-    background:linear-gradient(180deg,#0b0b0b,#111);
-    box-shadow:0 20px 50px rgba(0,0,0,0.6);
-    color:#fff;z-index:2100;display:none
+    width:85%;max-width:400px;
+    background:#111;color:#fff;
+    border-radius:12px;
+    padding:14px;
+    display:none;z-index:2100;
   }
 
-  .callBtns{display:flex;gap:12px;justify-content:center}
+  .callBtns{display:flex;gap:10px;justify-content:center;margin-top:10px;}
   .btn{
-    padding:10px 14px;border-radius:10px;
-    border:none;font-weight:900;cursor:pointer
+    padding:10px 14px;border:none;border-radius:10px;
+    font-weight:900;cursor:pointer;
   }
-  .btnAccept{background:#4ff07a;color:#000}
-  .btnDecline{background:#ff6b6b;color:#000}
-
-  #fakePopup{
-    position:fixed;right:12px;top:12px;
-    background:#222;padding:10px 14px;
-    border-radius:8px;color:#fff;z-index:2200;
-    display:none;
-  }
+  .btnAccept{background:#4eff7a;color:#000;}
+  .btnDecline{background:#ff5252;color:#000;}
 </style>
 </head>
+
 <body>
 
-<div id="tapToStart">Tap to unlock sound (required)</div>
+<div id="tapToStart">Tap to unlock sound</div>
 
+<!-- Ghosts -->
 <img id="ghost1" src="ghostimg1.png">
 <img id="ghost2" src="ghostimg2.png">
 <img id="ghost3" src="ghostimg2.png">
 
+<!-- Overlays -->
 <div id="flash"></div>
-<div id="crackOverlay"><img src="crack.png" style="width:100%;height:100%;object-fit:cover"></div>
+<div id="crackOverlay"><img src="crack.png"></div>
 <div id="black"></div>
 
+<!-- Blood -->
 <div class="blood-splat" id="bloodSplat"></div>
 <div class="blood-fill" id="bloodFill"></div>
 
+<!-- Fake Call -->
 <div id="callCard">
-  <div class="name" style="font-size:18px">Unknown Caller</div>
-  <div style="opacity:.9;font-size:13px;margin-bottom:8px">Incoming surprise...</div>
+  <div style="font-size:18px;font-weight:bold;">Unknown Caller</div>
+  <div style="font-size:13px;opacity:0.8;margin:6px 0 12px;">Tap Accept to continue</div>
   <div class="callBtns">
     <button class="btn btnAccept" id="acceptBtn">ACCEPT</button>
     <button class="btn btnDecline" id="declineBtn">DECLINE</button>
   </div>
 </div>
 
-<div id="fakePopup">System error detected</div>
-
-<audio id="audioMain" preload="auto"><source src="ghost.mp3"></audio>
-<audio id="audioWhisper" preload="auto"><source src="ghost.mp3"></audio>
-<audio id="audioScream" preload="auto"><source src="ghost.mp3"></audio>
+<!-- Audio -->
+<audio id="sound" preload="auto"><source src="ghost.mp3"></audio>
 
 <script>
 (function(){
@@ -116,151 +127,126 @@
   const callCard = document.getElementById("callCard");
   const acceptBtn = document.getElementById("acceptBtn");
   const declineBtn = document.getElementById("declineBtn");
-  const popup = document.getElementById("fakePopup");
 
   const g1 = document.getElementById("ghost1");
   const g2 = document.getElementById("ghost2");
   const g3 = document.getElementById("ghost3");
 
   const flash = document.getElementById("flash");
-  const black = document.getElementById("black");
   const crack = document.getElementById("crackOverlay");
-
+  const black = document.getElementById("black");
   const bloodSplat = document.getElementById("bloodSplat");
   const bloodFill = document.getElementById("bloodFill");
 
-  const audioMain = document.getElementById("audioMain");
-  const audioWhisper = document.getElementById("audioWhisper");
-  const audioScream = document.getElementById("audioScream");
+  const sound = document.getElementById("sound");
 
-  function vibrate(p){ if(navigator.vibrate) navigator.vibrate(p); }
+  let unlocked = false;
 
-  function screenShake(intensity=20, dur=400){
+  tap.addEventListener("click",()=>{
+    tap.remove();
+    callCard.style.display="block";
+    unlocked = true;
+  });
+
+  declineBtn.addEventListener("click",()=>{
+    callCard.style.display="none";
+    startSequence();
+  });
+
+  acceptBtn.addEventListener("click",()=>{
+    callCard.style.display="none";
+    startSequence();
+  });
+
+  function flashOnce(ms=80){
+    flash.style.opacity=1;
+    setTimeout(()=>flash.style.opacity=0,ms);
+  }
+
+  function vibrate(p){
+    if(navigator.vibrate) navigator.vibrate(p);
+  }
+
+  function shake(intensity=20, dur=400){
     const start = performance.now();
     function loop(){
       const now = performance.now();
-      if(now - start < dur){
-        const dx = (Math.random()*intensity)-(intensity/2);
-        const dy = (Math.random()*intensity)-(intensity/2);
-        document.body.style.transform = `translate(${dx}px,${dy}px)`;
+      if(now-start < dur){
+        const x = (Math.random()*intensity)-(intensity/2);
+        const y = (Math.random()*intensity)-(intensity/2);
+        document.body.style.transform = `translate(${x}px,${y}px)`;
         requestAnimationFrame(loop);
       } else document.body.style.transform="";
     }
     loop();
   }
 
-  function flashOnce(ms=70){
-    flash.style.opacity=1;
-    setTimeout(()=>flash.style.opacity=0,ms);
-  }
+  function startSequence(){
 
-  function redFlicker(){
-    document.body.style.background="#400";
-    setTimeout(()=>document.body.style.background="",120);
-  }
-
-  // unlock audio
-  tap.addEventListener("click",()=>{
-    tap.remove();
-    callCard.style.display="block";
-    popup.style.display="block";
-    setTimeout(()=>popup.style.display="none",2000);
-  });
-
-  declineBtn.addEventListener("click",()=>{
-    callCard.style.display="none";
-    startCreepPhase();
-  });
-
-  acceptBtn.addEventListener("click",()=>{
-    callCard.style.display="none";
-    startFullSequence();
-  });
-
-  function startCreepPhase(){
-    audioWhisper.volume=0.14;
-    audioWhisper.play().catch(()=>{});
-
-    g1.style.opacity=1;
-    g1.style.transform="translate(-50%,10%) scale(0.4)";
-
-    setTimeout(()=>g1.style.transform="translate(-50%,-10%) scale(0.6)",500);
-
-    setTimeout(()=>startFullSequence(),2000);
-  }
-
-  function startFullSequence(){
-
-    audioWhisper.pause();
-
-    [audioMain,audioScream].forEach(a=>{
-      a.addEventListener("loadedmetadata",()=>{
-        if(a.duration>3) a.currentTime=a.duration-3;
+    if(unlocked){
+      sound.addEventListener("loadedmetadata",()=>{
+        if(sound.duration>3) sound.currentTime=sound.duration-3;
       });
-    });
+      sound.play().catch(()=>{});
+    }
 
-    vibrate([100,60,100]);
-    screenShake(20,400);
-    redFlicker();
-
-    // FIRST GHOST (balanced)
+    /* FIRST GHOST — BALANCED */
     setTimeout(()=>{
-      flashOnce(60);
       g1.style.opacity=1;
-      g1.style.transform="translate(-50%,-50%) scale(1.6)";
-      audioMain.play().catch(()=>{});
-      vibrate([150,80]);
-      screenShake(28,500);
+      g1.style.transform="translate(-50%,-50%) scale(1.2)";
+      shake(20,400);
+      flashOnce(60);
     },300);
 
     setTimeout(()=>{
-      g1.style.opacity=0.4;
-      g1.style.transform="translate(-50%,-50%) scale(2.3)";
-      redFlicker();
-    },600);
+      g1.style.opacity=0.5;
+      g1.style.transform="translate(-50%,-50%) scale(1.9)";
+    },700);
 
-    // SHADOW GHOST
+    /* SHADOW GHOST */
     setTimeout(()=>{
-      g3.style.opacity=1;
-      g3.style.transform="translate(-50%,-50%) scale(2.0)";
-      setTimeout(()=>g3.style.opacity=0,100);
-    },750);
+      g3.style.opacity=0.9;
+      g3.style.transform="translate(-50%,-50%) scale(1.6)";
+      setTimeout(()=>g3.style.opacity=0,120);
+    },900);
 
-    // MAIN JUMPSCARE (balanced)
+    /* MAIN JUMPSCARE – FIXED SCALE */
     setTimeout(()=>{
-      flashOnce(30);
-      redFlicker();
-      screenShake(55,700);
-      vibrate([300,100,300]);
+      flashOnce(40);
+      shake(50,600);
+      vibrate([200,60,200]);
 
       g2.style.opacity=1;
-      g2.style.transform="translate(-50%,-50%) scale(3.0)";
+      g2.style.transform="translate(-50%,-50%) scale(2.5)";
+    },1100);
 
-      audioScream.play().catch(()=>{});
+    /* CRACK IMPACT – FIXED */
+    setTimeout(()=>{
+      crack.style.opacity=1;
+      flashOnce(100);
 
       setTimeout(()=>{
-        crack.style.opacity=1;
-        flashOnce(100);
-        setTimeout(()=>g2.style.transform="translate(-50%,-50%) scale(5.0)",120);
-        setTimeout(()=>black.style.opacity=1,180);
+        g2.style.transform="translate(-50%,-50%) scale(3.8)";
+      },120);
+
+      setTimeout(()=>{
+        black.style.opacity=1;
       },180);
+    },1250);
 
-    },1000);
-
-    // BLOOD
+    /* BLOOD */
     setTimeout(()=>{
       bloodSplat.style.opacity=1;
-      bloodSplat.style.transform="translate(-50%,-50%) scale(1.2)";
-      vibrate(400);
-    },1400);
+      bloodSplat.style.transform="translate(-50%,-50%) scale(1.1)";
+    },1550);
 
     setTimeout(()=>{
       bloodFill.style.height="100%";
-    },1700);
-
+    },1800);
   }
 
 })();
 </script>
+
 </body>
 </html>
