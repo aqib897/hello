@@ -3,162 +3,175 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Fixed Death Mode Balanced</title>
+<title>Extreme Death Mode - Ultra Visible</title>
 
 <style>
-  html,body{
+  body,html{
     margin:0;padding:0;overflow:hidden;
     background:#000;font-family:Arial;
   }
 
-  /* GHOST IMAGES – FIXED VISIBILITY */
-  #ghost1, #ghost2, #ghost3{
-    position:fixed;
-    left:50%; top:50%;
+  /* ==== GHOSTS (Fixed visibility) ==== */
+  #ghost1,#ghost2,#ghost3{
+    position:fixed;left:50%;top:50%;
     transform:translate(-50%,-50%) scale(0.1);
-    width:70vw; max-width:600px;
-    opacity:0;
-    pointer-events:none;
-    transition:transform 0.35s ease, opacity 0.25s linear;
+    width:70vw;max-width:600px;
+    opacity:0;pointer-events:none;
+    transition:transform .4s ease, opacity .4s linear;
     z-index:500;
   }
 
-  /* FLASH / BLACKOUT */
-  #flash, #black{
-    position:fixed; inset:0;
-    opacity:0; pointer-events:none;
+  /* ==== Smoke Effect ==== */
+#smoke{
+  position:fixed;
+  left:50%;top:50%;
+  transform:translate(-50%,-50%);
+  width:120vw;
+  opacity:0.35;
+  mix-blend-mode:screen;
+  pointer-events:none;
+  z-index:300;
+  animation:smokeFloat 6s linear infinite;
+}
+
+@keyframes smokeFloat {
+  0%   { transform:translate(-50%,-50%) scale(1); }
+  50%  { transform:translate(-48%,-52%) scale(1.2); }
+  100% { transform:translate(-50%,-50%) scale(1); }
+
+  /* ==== Glowing Eyes Overlay ==== */
+  #eyesGlow{
+    position:fixed;left:50%;top:50%;
+    transform:translate(-50%,-50%) scale(0.1);
+    width:40vw;max-width:300px;
+    opacity:0;pointer-events:none;
+    mix-blend-mode:screen;
+    z-index:600;
+    animation:eyesPulse 1.3s infinite alternate;
+  }
+
+  @keyframes eyesPulse {
+    0%{opacity:0.2; transform:translate(-50%,-50%) scale(0.9);}
+    100%{opacity:1; transform:translate(-50%,-50%) scale(1.1);}
+  }
+
+  /* FLASH & BLACKOUT */
+  #flash,#black{
+    position:fixed;inset:0;opacity:0;pointer-events:none;
   }
   #flash{background:#fff;z-index:900;}
   #black{background:#000;z-index:1500;}
 
-  /* CRACK OVERLAY – FIXED */
+  /* CRACK */
   #crackOverlay{
-    position:fixed; inset:0;
-    opacity:0;
-    z-index:1400;
-    pointer-events:none;
-    transition:opacity 0.18s linear;
+    position:fixed;inset:0;opacity:0;pointer-events:none;
+    z-index:1400;transition:opacity .15s ease;
   }
-  #crackOverlay img{
-    width:100%; height:100%; object-fit:cover;
-  }
+  #crackOverlay img{width:100%;height:100%;object-fit:cover;}
 
   /* BLOOD */
   .blood-splat{
     position:fixed;left:50%;top:50%;
     width:130vmin;height:130vmin;
     transform:translate(-50%,-50%) scale(0.1);
-    background:radial-gradient(circle,#ff3030,#4a0000,transparent);
-    opacity:0;z-index:1200;
-    border-radius:50%;
-    transition:transform 0.4s ease-out, opacity 0.25s linear;
+    opacity:0;border-radius:50%;
+    background:radial-gradient(circle,#ff3030,#600000,transparent);
+    z-index:1200;
+    transition:opacity .3s ease, transform .3s ease;
   }
 
   .blood-fill{
     position:fixed;left:0;right:0;bottom:0;
-    height:0;background:#700000;z-index:1201;
-    transition:height 2s ease-in;
+    height:0;background:#600000;z-index:1201;
+    transition:height 2.2s ease-in;
   }
 
-  /* TAP SCREEN */
+  /* TAP TO START */
   #tapToStart{
-    position:fixed; inset:0;
-    background:#000;color:#fff;
-    display:flex;align-items:center;justify-content:center;
-    font-size:22px;z-index:2000;
+    position:fixed;inset:0;background:#000;
+    color:#fff;display:flex;align-items:center;
+    justify-content:center;font-size:20px;z-index:2000;
   }
 
-  /* Fake call box */
-  #callCard{
-    position:fixed;left:50%;bottom:10%;
+  /* Fake Virus Popup */
+  #virusPopup{
+    position:fixed;top:20px;left:50%;
     transform:translateX(-50%);
-    width:85%;max-width:400px;
-    background:#111;color:#fff;
-    border-radius:12px;
-    padding:14px;
-    display:none;z-index:2100;
+    background:#150000;color:#ff4444;
+    border:2px solid #ff0000;
+    padding:14px 20px;border-radius:10px;
+    font-weight:bold;display:none;
+    z-index:1600;
+    animation:popupShake .4s ease;
   }
 
-  .callBtns{display:flex;gap:10px;justify-content:center;margin-top:10px;}
-  .btn{
-    padding:10px 14px;border:none;border-radius:10px;
-    font-weight:900;cursor:pointer;
+  @keyframes popupShake {
+    0%{transform:translateX(-50%) rotate(0deg);}
+    25%{transform:translateX(-48%) rotate(1deg);}
+    50%{transform:translateX(-50%) rotate(0deg);}
+    75%{transform:translateX(-52%) rotate(-1deg);}
+    100%{transform:translateX(-50%) rotate(0deg);}
   }
-  .btnAccept{background:#4eff7a;color:#000;}
-  .btnDecline{background:#ff5252;color:#000;}
 </style>
 </head>
 
 <body>
 
-<div id="tapToStart">Tap to unlock sound</div>
+<div id="tapToStart">Tap to start...</div>
 
-<!-- Ghosts -->
+<!-- SMOKE -->
+<img id="smoke" src="smoke.gif">
+
+<!-- GHOSTS -->
 <img id="ghost1" src="ghostimg1.png">
 <img id="ghost2" src="ghostimg2.png">
 <img id="ghost3" src="ghostimg2.png">
 
-<!-- Overlays -->
+<!-- EYES -->
+<div id="eyesGlow"><img src="eyes.png" style="width:100%;"></div>
+
+<!-- OVERLAYS -->
 <div id="flash"></div>
 <div id="crackOverlay"><img src="crack.png"></div>
 <div id="black"></div>
 
-<!-- Blood -->
-<div class="blood-splat" id="bloodSplat"></div>
-<div class="blood-fill" id="bloodFill"></div>
+<!-- BLOOD -->
+<div id="bloodSplat" class="blood-splat"></div>
+<div id="bloodFill" class="blood-fill"></div>
 
-<!-- Fake Call -->
-<div id="callCard">
-  <div style="font-size:18px;font-weight:bold;">Unknown Caller</div>
-  <div style="font-size:13px;opacity:0.8;margin:6px 0 12px;">Tap Accept to continue</div>
-  <div class="callBtns">
-    <button class="btn btnAccept" id="acceptBtn">ACCEPT</button>
-    <button class="btn btnDecline" id="declineBtn">DECLINE</button>
-  </div>
-</div>
+<!-- Fake Virus Popup -->
+<div id="virusPopup">⚠ System Warning: Unknown entity detected!</div>
 
-<!-- Audio -->
-<audio id="sound" preload="auto"><source src="ghost.mp3"></audio>
+<!-- SOUND -->
+<audio id="sound" preload="auto">
+  <source src="ghost.mp3">
+</audio>
 
 <script>
+
 (function(){
 
   const tap = document.getElementById("tapToStart");
-  const callCard = document.getElementById("callCard");
-  const acceptBtn = document.getElementById("acceptBtn");
-  const declineBtn = document.getElementById("declineBtn");
 
   const g1 = document.getElementById("ghost1");
   const g2 = document.getElementById("ghost2");
   const g3 = document.getElementById("ghost3");
 
-  const flash = document.getElementById("flash");
+  const smoke = document.getElementById("smoke");
+  const eyes = document.getElementById("eyesGlow");
+
   const crack = document.getElementById("crackOverlay");
+  const flash = document.getElementById("flash");
   const black = document.getElementById("black");
+
   const bloodSplat = document.getElementById("bloodSplat");
   const bloodFill = document.getElementById("bloodFill");
 
+  const virusPopup = document.getElementById("virusPopup");
+
   const sound = document.getElementById("sound");
 
-  let unlocked = false;
-
-  tap.addEventListener("click",()=>{
-    tap.remove();
-    callCard.style.display="block";
-    unlocked = true;
-  });
-
-  declineBtn.addEventListener("click",()=>{
-    callCard.style.display="none";
-    startSequence();
-  });
-
-  acceptBtn.addEventListener("click",()=>{
-    callCard.style.display="none";
-    startSequence();
-  });
-
-  function flashOnce(ms=80){
+  function flashWhite(ms=60){
     flash.style.opacity=1;
     setTimeout(()=>flash.style.opacity=0,ms);
   }
@@ -170,79 +183,91 @@
   function shake(intensity=20, dur=400){
     const start = performance.now();
     function loop(){
-      const now = performance.now();
-      if(now-start < dur){
+      let now = performance.now();
+      if(now - start < dur){
         const x = (Math.random()*intensity)-(intensity/2);
         const y = (Math.random()*intensity)-(intensity/2);
-        document.body.style.transform = `translate(${x}px,${y}px)`;
+        document.body.style.transform=`translate(${x}px,${y}px)`;
         requestAnimationFrame(loop);
-      } else document.body.style.transform="";
+      } else {
+        document.body.style.transform="";
+      }
     }
     loop();
   }
 
+  tap.addEventListener("click",()=>{
+    tap.remove();
+    startSequence();
+  });
+
   function startSequence(){
 
-    if(unlocked){
-      sound.addEventListener("loadedmetadata",()=>{
-        if(sound.duration>3) sound.currentTime=sound.duration-3;
-      });
-      sound.play().catch(()=>{});
-    }
+    sound.addEventListener("loadedmetadata",()=>{
+      if(sound.duration>3) sound.currentTime=sound.duration-3;
+    });
+    sound.play().catch(()=>{});
 
-    /* FIRST GHOST — BALANCED */
+    /* PHASE 1 — SLOW GHOST REVEAL (A) */
     setTimeout(()=>{
       g1.style.opacity=1;
       g1.style.transform="translate(-50%,-50%) scale(1.2)";
-      shake(20,400);
-      flashOnce(60);
-    },300);
+      smoke.style.opacity=0.5;
+      eyes.style.opacity=1;
+      eyes.style.transform="translate(-50%,-50%) scale(1.2)";
+    },200);
 
+    // further slow zoom
     setTimeout(()=>{
-      g1.style.opacity=0.5;
-      g1.style.transform="translate(-50%,-50%) scale(1.9)";
-    },700);
+      g1.style.transform="translate(-50%,-50%) scale(1.8)";
+      eyes.style.transform="translate(-50%,-50%) scale(1.4)";
+    },1200);
 
-    /* SHADOW GHOST */
+    /* Virus Warning Popup */
     setTimeout(()=>{
-      g3.style.opacity=0.9;
+      virusPopup.style.display="block";
+      setTimeout(()=>virusPopup.style.display="none",1400);
+    },1500);
+
+    /* PHASE 2 — Shadow ghost flicker */
+    setTimeout(()=>{
+      g3.style.opacity=1;
       g3.style.transform="translate(-50%,-50%) scale(1.6)";
       setTimeout(()=>g3.style.opacity=0,120);
-    },900);
+    },1800);
 
-    /* MAIN JUMPSCARE – FIXED SCALE */
+    /* PHASE 3 — MAIN JUMPSCARE GHOST (Option 1) */
     setTimeout(()=>{
-      flashOnce(40);
-      shake(50,600);
+      flashWhite(40);
+      shake(40,500);
       vibrate([200,60,200]);
 
       g2.style.opacity=1;
-      g2.style.transform="translate(-50%,-50%) scale(2.5)";
-    },1100);
+      g2.style.transform="translate(-50%,-50%) scale(2.2)";  // visible phase
 
-    /* CRACK IMPACT – FIXED */
+    },2100);
+
+    /* HOLD 200ms then BOOM */
     setTimeout(()=>{
       crack.style.opacity=1;
-      flashOnce(100);
+      flashWhite(120);
+      shake(60,600);
 
-      setTimeout(()=>{
-        g2.style.transform="translate(-50%,-50%) scale(3.8)";
-      },120);
+      g2.style.transform="translate(-50%,-50%) scale(4.0)";
+      eyes.style.opacity=0; // remove glowing eyes now
 
-      setTimeout(()=>{
-        black.style.opacity=1;
-      },180);
-    },1250);
+    },2300);
 
-    /* BLOOD */
+    /* PHASE 4 — Blood */
     setTimeout(()=>{
       bloodSplat.style.opacity=1;
-      bloodSplat.style.transform="translate(-50%,-50%) scale(1.1)";
-    },1550);
+      bloodSplat.style.transform="translate(-50%,-50%) scale(1.3)";
+    },2600);
 
     setTimeout(()=>{
       bloodFill.style.height="100%";
-    },1800);
+      black.style.opacity=1;
+    },2900);
   }
 
 })();
